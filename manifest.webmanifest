@@ -1,0 +1,20 @@
+{
+  "name": "Hecele – Okumayı Öğreniyorum",
+  "short_name": "Hecele",
+  "id": "/hecele/",
+  "description": "Bildiğin harflerle hece, kelime ve cümle okuma alıştırması.",
+  "lang": "tr",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#e0f2fe",
+  "theme_color": "#7dd3fc",
+  "categories": ["education", "kids"],
+  "icons": [
+    { "src": "ikonlar/ikon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "ikonlar/ikon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "ikonlar/ikon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

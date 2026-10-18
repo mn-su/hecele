@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#7dd3fc">
+  <meta name="description" content="Bildiğin harflerle hece, kelime ve cümle okuma alıştırması.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="ikonlar/ikon-192.png">
+  <link rel="apple-touch-icon" href="ikonlar/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Hecele">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Hecele – Okumayı Öğreniyorum</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet" crossorigin>
+  <link rel="stylesheet" href="css/stil.css">
+</head>
+<body>
+  <!-- Maskot şablonu (her ekranda kopyalanır) -->
+  <template id="maskot-sablon">
+    <svg class="maskot" viewBox="0 0 120 132" aria-hidden="true">
+      <g class="govde">
+        <polygon points="22,30 30,4 44,24" fill="#7a4a2c"/>
+        <polygon points="98,30 90,4 76,24" fill="#7a4a2c"/>
+        <ellipse cx="60" cy="74" rx="46" ry="52" fill="#9a6440"/>
+        <g class="kanat sol"><ellipse cx="18" cy="82" rx="12" ry="26" fill="#7a4a2c"/></g>
+        <g class="kanat sag"><ellipse cx="102" cy="82" rx="12" ry="26" fill="#7a4a2c"/></g>
+        <ellipse cx="60" cy="94" rx="30" ry="30" fill="#f6dfb8"/>
+        <path d="M48 90 q4 4 8 0 M64 90 q4 4 8 0 M56 102 q4 4 8 0" stroke="#d9b98a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <circle cx="41" cy="55" r="19" fill="#f6dfb8"/>
+        <circle cx="79" cy="55" r="19" fill="#f6dfb8"/>
+        <circle cx="41" cy="55" r="14" fill="#fff"/>
+        <circle cx="79" cy="55" r="14" fill="#fff"/>
+        <g class="gozler">
+          <circle cx="43" cy="57" r="7.5" fill="#2b2118"/>
+          <circle cx="81" cy="57" r="7.5" fill="#2b2118"/>
+          <circle cx="45.5" cy="54" r="2.6" fill="#fff"/>
+          <circle cx="83.5" cy="54" r="2.6" fill="#fff"/>
+        </g>
+        <g class="kapak">
+          <rect x="26" y="40" width="30" height="30" rx="15" fill="#e9c995"/>
+          <rect x="64" y="40" width="30" height="30" rx="15" fill="#e9c995"/>
+        </g>
+        <polygon points="60,64 53,72 60,82 67,72" fill="#ffb020"/>
+        <circle class="yanak" cx="28" cy="72" r="5" fill="#ff8fa3" opacity=".55"/>
+        <circle class="yanak" cx="92" cy="72" r="5" fill="#ff8fa3" opacity=".55"/>
+        <path d="M44 126 l-6 5 M48 126 v6 M52 126 l6 5 M68 126 l-6 5 M72 126 v6 M76 126 l6 5" stroke="#ffb020" stroke-width="4" stroke-linecap="round"/>
+        <!-- Kep -->
+        <polygon points="60,6 92,18 60,30 28,18" fill="#334155"/>
+        <rect x="46" y="20" width="28" height="10" rx="3" fill="#334155"/>
+        <path d="M92 18 v14" stroke="#facc15" stroke-width="2.5"/>
+        <circle cx="92" cy="34" r="3.5" fill="#facc15"/>
+      </g>
+    </svg>
+  </template>
+
+  <!-- HARF SEÇİMİ (öğrenci seçer) -->
+  <section id="ekran-harf" class="ekran" aria-label="Harf seçimi">
+    <header class="ust">
+      <button class="ikon-dugme" id="harf-geri" aria-label="Geri" hidden>⬅️</button>
+      <div class="logo">he<span>ce</span>le</div>
+      <div class="ust-sag">
+        <button class="ikon-dugme" id="ayar-ac-2" aria-label="Öğretmen ayarları">⚙️</button>
+      </div>
+    </header>
+    <div class="karsilama">
+      <div class="maskot-yer" data-maskot id="harf-maskot"></div>
+      <div class="balon" id="harf-balon">Hangi harfleri öğrendin? Bildiğin harflere dokun!</div>
+    </div>
+    <div class="harf-secim" id="harf-secim"></div>
+    <footer class="harf-alt">
+      <div class="harf-ozet" id="harf-ozet"></div>
+      <button class="dugme yesil buyuk" id="harf-tamam" disabled><span>🚀</span> Hazırım!</button>
+    </footer>
+  </section>
+
+  <!-- ANA EKRAN -->
+  <section id="ekran-ana" class="ekran" aria-label="Ana sayfa">
+    <header class="ust">
+      <div class="logo">he<span>ce</span>le</div>
+      <div class="ust-sag">
+        <div class="yildiz-sayac" title="Toplam yıldız"><span class="yildiz-ikon">⭐</span><b id="ana-yildiz">0</b></div>
+        <button class="ikon-dugme" id="ayar-ac" aria-label="Öğretmen ayarları">⚙️</button>
+      </div>
+    </header>
+
+    <div class="karsilama">
+      <div class="maskot-yer buyuk" data-maskot></div>
+      <div class="balon" id="ana-balon">Merhaba! Bugün ne okuyalım?</div>
+    </div>
+    <div class="motor-cip" id="motor-cip" hidden></div>
+
+    <div class="harf-kutu">
+      <div class="harf-baslik">Bildiğim harfler</div>
+      <div class="harf-seridi" id="ana-harfler"></div>
+      <button class="dugme-metin harf-degistir" id="harf-degistir">✏️ Harflerimi değiştir</button>
+    </div>
+
+    <div class="modlar">
+      <button class="mod-kart mor" data-mod="hece">
+        <span class="mod-ikon">🔤</span><span class="mod-ad">Heceler</span><span class="mod-sayi" data-sayi="hece"></span>
+      </button>
+      <button class="mod-kart mavi" data-mod="kelime">
+        <span class="mod-ikon">🧩</span><span class="mod-ad">Kelimeler</span><span class="mod-sayi" data-sayi="kelime"></span>
+      </button>
+      <button class="mod-kart yesil" data-mod="cumle">
+        <span class="mod-ikon">📖</span><span class="mod-ad">Cümleler</span><span class="mod-sayi" data-sayi="cumle"></span>
+      </button>
+      <button class="mod-kart turuncu" data-mod="karisik">
+        <span class="mod-ikon">🎲</span><span class="mod-ad">Karışık</span><span class="mod-sayi">hepsi bir arada</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- OKUMA EKRANI -->
+  <section id="ekran-okuma" class="ekran" aria-label="Okuma">
+    <header class="ust">
+      <button class="ikon-dugme" id="eve-don" aria-label="Ana sayfa">🏠</button>
+      <div class="ilerleme" id="ilerleme" aria-label="İlerleme"></div>
+      <div class="yildiz-sayac"><span class="yildiz-ikon">⭐</span><b id="tur-yildiz">0</b></div>
+    </header>
+
+    <main class="sahne">
+      <div class="rehber">
+        <div class="maskot-yer" data-maskot id="okuma-maskot"></div>
+        <div class="balon" id="okuma-balon" aria-live="polite">Önce sen oku!</div>
+      </div>
+      <div class="kart" id="kart">
+        <div class="metin" id="metin"></div>
+        <div class="duyulan" id="duyulan" aria-live="polite"></div>
+      </div>
+    </main>
+
+    <footer class="kontroller">
+      <div class="grup" data-grup="oku">
+        <button class="dugme mavi buyuk" id="dinle-dugme"><span>🔊</span> Okudum, dinleyelim!</button>
+        <button class="dugme mor buyuk" id="mikrofon-dugme" hidden><span>🎤</span> Sesli oku</button>
+        <button class="dugme yesil buyuk" id="itiraz-dugme" hidden><span>😊</span> Doğru okumuştum</button>
+      </div>
+      <div class="grup" data-grup="dinliyor" hidden>
+        <button class="dugme kirmizi buyuk nabiz" id="dinlemeyi-bitir"><span>🎙️</span> Dinliyorum… bitirdim</button>
+      </div>
+      <div class="grup" data-grup="degerlendir" hidden>
+        <button class="dugme yesil buyuk" id="dogru-dugme"><span>😊</span> Doğru okudum</button>
+        <button class="dugme turuncu buyuk" id="tekrar-dugme"><span>🤔</span> Bir daha</button>
+      </div>
+      <div class="kucuk-dugmeler">
+        <button class="dugme-metin" id="tekrar-dinle">🔊 Tekrar dinle</button>
+        <button class="dugme-metin" id="gec-dugme">Geç ⏭</button>
+      </div>
+    </footer>
+  </section>
+
+  <!-- TUR SONU -->
+  <section id="ekran-sonuc" class="ekran" aria-label="Tur sonu">
+    <div class="sonuc-icerik">
+      <div class="maskot-yer buyuk" data-maskot id="sonuc-maskot"></div>
+      <h1 id="sonuc-baslik">Harika!</h1>
+      <p id="sonuc-alt"></p>
+      <div class="sonuc-yildizlar" id="sonuc-yildizlar"></div>
+      <div class="sonuc-zorlar" id="sonuc-zorlar"></div>
+      <div class="sonuc-dugmeler">
+        <button class="dugme yesil buyuk" id="yeni-tur"><span>🔁</span> Yeni tur</button>
+        <button class="dugme mavi buyuk" id="sonuc-ana"><span>🏠</span> Ana sayfa</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ÖĞRETMEN / VELİ AYARLARI -->
+  <dialog id="ayarlar" aria-label="Öğretmen ayarları">
+    <form method="dialog" class="ayar-form">
+      <div class="ayar-baslik">
+        <h2>Öğretmen / Veli Ayarları</h2>
+        <button class="ikon-dugme" value="kapat" aria-label="Kapat">✖️</button>
+      </div>
+
+      <fieldset>
+        <legend>Harfler</legend>
+        <label class="satir">Harf sırası
+          <select id="ayar-sira"></select>
+        </label>
+        <p class="bilgi">Harfleri öğrenci açılışta kendisi seçer. Değiştirmek için ana sayfadaki “Harflerimi değiştir”.</p>
+        <p class="bilgi" id="havuz-bilgi"></p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Görünüm</legend>
+        <label class="satir">Yazı biçimi
+          <select id="ayar-yazi">
+            <option value="dogal">Doğal (Ali ata bak.)</option>
+            <option value="kucuk">Hepsi küçük (ali ata bak.)</option>
+            <option value="buyuk">HEPSİ BÜYÜK (ALİ ATA BAK.)</option>
+          </select>
+        </label>
+        <label class="satir onay"><input type="checkbox" id="ayar-renkli"> <span>Heceleri renklendir (kırmızı / mavi)</span></label>
+        <label class="satir">Tur uzunluğu
+          <select id="ayar-adet">
+            <option value="5">5 kart</option>
+            <option value="10">10 kart</option>
+            <option value="15">15 kart</option>
+            <option value="20">20 kart</option>
+          </select>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Ses</legend>
+        <p class="bilgi" id="motor-bilgi"></p>
+        <button type="button" class="dugme kucuk turuncu" id="motor-sifirla" hidden>🔄 Ses motorunu yeniden dene</button>
+        <label class="satir">Model hassasiyeti
+          <select id="ayar-hassasiyet">
+            <option value="fp32">fp32 – en iyi kalite (35 MB)</option>
+            <option value="fp16">fp16 – daha hafif (26 MB)</option>
+          </select>
+        </label>
+        <label class="satir">Ses tonu
+          <select id="ayar-ton">
+            <option value="0">Normal</option>
+            <option value="3">Çocuk sesi</option>
+          </select>
+        </label>
+        <label class="satir">Okuma hızı <span id="hiz-deger"></span>
+          <input type="range" id="ayar-hiz" min="0.6" max="1.2" step="0.05">
+        </label>
+        <label class="satir onay"><input type="checkbox" id="ayar-hecele"> <span>Kelimeleri önce heceleyerek oku (an… ne… anne)</span></label>
+        <label class="satir onay"><input type="checkbox" id="ayar-efekt"> <span>Efekt sesleri</span></label>
+        <label class="satir onay"><input type="checkbox" id="ayar-mikrofon"> <span>Mikrofonla otomatik kontrol <small>(Chrome/Edge, internet gerekir)</small></span></label>
+        <p class="uyari" id="mikrofon-uyari" hidden></p>
+        <button type="button" class="dugme kucuk mavi" id="ses-dene">🔊 Sesi dene</button>
+      </fieldset>
+
+      <fieldset>
+        <legend>Uygulama</legend>
+        <p class="bilgi" id="yukleme-bilgi"></p>
+        <p class="bilgi" id="cevrimdisi-bilgi">İnternetsiz kullanım durumu okunuyor…</p>
+        <button type="button" class="dugme kucuk yesil" id="yukle-dugme" hidden>📲 Uygulama olarak yükle</button>
+        <p class="uyari" id="eski-android-ipucu" hidden>Bu cihazda (Android 8 ve öncesi) Chrome'un “Uygulamayı yükle” özelliği açılmayan bir uygulama üretiyor. Bunun yerine Chrome menüsünden <b>Ana ekrana ekle</b>'yi seçin; sorulursa <b>Kısayol oluştur</b>'u seçin. Daha önce yüklediyseniz o simgeyi silip kısayol olarak yeniden ekleyin.</p>
+        <p class="bilgi" id="ios-ipucu" hidden>iPad/iPhone'da yüklemek için Safari'de <b>Paylaş</b> düğmesine, sonra <b>Ana Ekrana Ekle</b>'ye dokunun.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>İlerleme</legend>
+        <p class="bilgi" id="ilerleme-bilgi"></p>
+        <button type="button" class="dugme kucuk kirmizi" id="sifirla">İlerlemeyi sıfırla</button>
+      </fieldset>
+    </form>
+  </dialog>
+
+  <div id="konfeti" aria-hidden="true"></div>
+
+  <script src="js/turkce.js"></script>
+  <script src="js/veri.js"></script>
+  <script src="js/uretici.js"></script>
+  <script src="js/ses.js"></script>
+  <script src="js/uygulama.js"></script>
+</body>
+</html>

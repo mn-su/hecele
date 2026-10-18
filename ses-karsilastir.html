@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hece Sesi Karşılaştırma</title>
+  <style>
+    :root { --yazi: #1f2937; --soluk: #64748b; --kart: #fff; --zemin: #e0f2fe; --mavi: #0ea5e9; --yesil: #22c55e; }
+    body { margin: 0; font-family: system-ui, sans-serif; background: var(--zemin); color: var(--yazi); }
+    main { max-width: 760px; margin: 0 auto; padding: 20px 16px 40px; }
+    h1 { margin: 0 0 4px; font-size: 26px; }
+    p { color: var(--soluk); margin: 6px 0 14px; }
+    .durum { font-weight: 700; margin-bottom: 12px; }
+    .ekle { display: flex; gap: 8px; margin-bottom: 14px; }
+    .ekle input { flex: 1; font-size: 18px; padding: 8px 12px; border-radius: 10px; border: 2px solid #cbd5e1; }
+    table { width: 100%; border-collapse: collapse; background: var(--kart); border-radius: 14px; overflow: hidden; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+    th { font-size: 13px; color: var(--soluk); text-transform: uppercase; letter-spacing: .04em; }
+    td.hece { font-size: 28px; font-weight: 700; font-family: 'Andika', system-ui, sans-serif; }
+    button { font: inherit; font-weight: 700; border: 0; border-radius: 10px; padding: 8px 14px; color: #fff; background: var(--mavi); cursor: pointer; }
+    button.yeni { background: var(--yesil); }
+    button:disabled { opacity: .5; }
+    .puan { font-variant-numeric: tabular-nums; color: var(--soluk); font-size: 14px; margin-left: 6px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Hece sesi karşılaştırma</h1>
+    <p>Aynı heceyi eski (tek başına, ham) ve yeni yöntemle dinleyin. Yeni yöntemde hece “Bak, a.” gibi
+      bir cümlenin sonunda seslendirilip kesilir, birkaç aday arasından perdesi en kararlı olan seçilir,
+      gerekirse perdesi korunarak biraz uzatılır ve ses düzeyi eşitlenir. Puan, sesli bölümün temizliğini
+      ve perde kararlılığını ölçer (1'e yakın = temiz).</p>
+    <div class="durum" id="durum">Ses modeli yükleniyor…</div>
+    <form class="ekle" id="ekle">
+      <input id="yeni-hece" placeholder="Hece ya da kelime ekle (ör. ö, kar, nane)" autocomplete="off">
+      <button type="submit">Ekle</button>
+    </form>
+    <table>
+      <thead><tr><th>Hece / kelime</th><th>Eski</th><th>Yeni</th></tr></thead>
+      <tbody id="liste"></tbody>
+    </table>
+  </main>
+  <script src="js/turkce.js"></script>
+  <script src="js/ses.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      var HECELER = ['a', 'e', 'ı', 'i', 'o', 'ö', 'u', 'ü', 'an', 'en', 'at', 'it', 'ne', 'ni', 'ta', 'te', 'nat', 'tin', 'ka', 'mu', 'sel', 'kar',
+        'nane', 'anne', 'nine', 'inat', 'tane', 'ata', 'kalem', 'okul'];
+      var ctx = null, calan = null;
+
+      function cal(ses) {
+        if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 48000 });
+        ctx.resume();
+        if (calan) try { calan.stop(); } catch (e) { /* yoksay */ }
+        var b = ctx.createBuffer(1, ses.length, 48000);
+        b.copyToChannel(ses, 0);
+        calan = ctx.createBufferSource();
+        calan.buffer = b;
+        calan.connect(ctx.destination);
+        calan.start();
+      }
+
+      function dugme(hece, tur, sinif, etiket) {
+        var td = document.createElement('td');
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = sinif;
+        b.textContent = '▶ ' + etiket;
+        var puan = document.createElement('span');
+        puan.className = 'puan';
+        b.onclick = async function () {
+          b.disabled = true;
+          try {
+            var s = await Ses._sentezle(hece, tur);
+            puan.textContent = s.puan.toFixed(2);
+            cal(s.ses);
+          } finally { b.disabled = false; }
+        };
+        td.appendChild(b);
+        td.appendChild(puan);
+        return td;
+      }
+
+      function satir(hece) {
+        hece = Turkce.kucuk(hece.trim());
+        if (!hece) return;
+        // Birden çok ünlü varsa kelime olarak seslendirilir
+        var tur = Turkce.harflerinde(hece).filter(Turkce.unluMu).length > 1 ? 'kelime' : 'hece';
+        var tr = document.createElement('tr');
+        var h = document.createElement('td');
+        h.className = 'hece';
+        h.textContent = hece;
+        tr.appendChild(h);
+        tr.appendChild(dugme(hece, 'ham', '', 'Eski'));
+        tr.appendChild(dugme(hece, tur, 'yeni', 'Yeni'));
+        document.getElementById('liste').appendChild(tr);
+      }
+
+      HECELER.forEach(satir);
+      document.getElementById('ekle').onsubmit = function (e) {
+        e.preventDefault();
+        var g = document.getElementById('yeni-hece');
+        satir(g.value);
+        g.value = '';
+      };
+
+      Ses.durumDinle(function (d) {
+        var el = document.getElementById('durum');
+        if (d.durum === 'yukleniyor') el.textContent = 'Ses modeli yükleniyor… %' + Math.round(d.ilerleme * 100);
+        else if (d.durum === 'hazir') el.textContent = '✅ Model hazır (' + d.arka + ', ' + d.hassasiyet + ')';
+        else if (d.durum === 'hata') el.textContent = '⚠️ Model yüklenemedi: ' + d.hata;
+      });
+      Ses.yukle();
+    })();
+  </script>
+</body>
+</html>
