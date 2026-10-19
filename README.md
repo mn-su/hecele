@@ -102,14 +102,22 @@ Uygulama çocuklara yalnızca olumlu ya da nötr çağrışımlı içerik göste
   çağrıştıran kelimeler (ör. öküz, cadı, bıçak, iğne, yanlış, kırık) ve cümleler (“Taş atma.”,
   “Ayna kırık.”) havuzdan çıkarıldı. Argo ya da olumsuz anlamlı heceler (“lan”, “öl”, “öç”, “kin”…)
   hece üreticisinin yasaklı listesindedir (`js/uretici.js`).
-- **500 olumlu kelime** [TDK Türkçe kelime listesinden](https://github.com/ERENSISMAN61/TDK_Turkce_Kelimeler)
+- İkinci gözden geçirmede ayrıca çıkarıldı: bağlamsız çekimli kelimeler (annen, ele, ona…),
+  sağlıksız yiyecek ve içecekler (kola, cips, gazoz…), hecelenince uygunsuz hece çıkaran kelimeler
+  (bi-**sik**-let, **öl**-çü), soğuk ya da olumsuz çağrışımlılar (çamur, çöl, siyah, eski…),
+  özel adların küçük harfli kelimeyle tekrarı (Lale/lale) ve olumsuz emir gibi okunan cümleler
+  (“Şeker yeme.”, “Sınıfı balonla süsleme.”).
+- **1. seçki – 500 olumlu kelime** [TDK Türkçe kelime listesinden](https://github.com/ERENSISMAN61/TDK_Turkce_Kelimeler)
   seçildi: liste mekanik olarak süzüldü (özel isimler, mastarlar, türetmeler, “-sız” ekliler, 4+
   hece), hızlı bir dil modeli 6–7 yaşındaki çocuğun bildiği ve olumlu anlamlı kelimeleri önerdi,
   öneriler elle gözden geçirildi. İlk harflerle okunabilen kelime az olduğu için ilk 16 harften
-  oluşan kelimeler ayrıca tarandı. Yeni kelimeler `js/veri.js`'te harf gruplarına göre sıralıdır.
-- Yeni kelimelerin her biri en az bir cümlede geçer: 512 yeni cümle harf gruplarına göre yazıldı;
-  her cümle yalnızca kendi grubuna kadar öğrenilen harflerle okunabilir (ör. ilk grupta
-  “Anneanne, kek al.”, sonra “Martı limana iner.”, “Kanarya öter.”…).
+  oluşan kelimeler ayrıca tarandı.
+- **2. seçki** – yaklaşık 500 olumlu kelime ve 500 cümle daha eklendi; çocuğa uzak soyut
+  kelimeler ve anlamsız cümleler elle ayıklandı. Ayrı yazılan birleşik kelimeler (TDK’ya göre
+  “demir yolu”, “uğur böceği”, “güler yüzlü”…) kelime listesine alınmaz, yalnızca cümlelerde geçer.
+- Seçkilerdeki kelimeler `js/veri.js`'te harf gruplarına göre sıralıdır ve çoğu en az bir
+  cümlede de geçer. Her cümle yalnızca kendi grubuna kadar öğrenilen harflerle okunabilir (ör. ilk
+  grupta “Nine, nane tat.”, sonra “Anneanne, kek al.”, “Martı limana iner.”, “Kanarya öter.”…).
 
 ## Hece seslerinin kalitesi
 
