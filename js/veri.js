@@ -225,17 +225,18 @@
 
   var CUMLELER = [
     // A N E T İ
-    'İnan, anne.', 'Anten net.', 'Anne, nane tat.', 'Nine, nane tat.', 'Tan, nane tat.',
-    'Anne, nine, nane tat.', 'Tane tane tat.', 'Tan, tane tane tat.', 'Nine, inan.', 'Tan, inan.',
-    'İnan, nine.', 'Nine, anten net.',
+    'Anne, tente ne?', 'Anne, anten ne?', 'Nine, nane ne?', 'Ne, anne?', 'Ne, nine?',
+    'Anne, inan!', 'Anneanne, inan!', 'Annene inan.', 'Ninene inan.', 'Nine, ninni!',
+    'Anne, nane tat.', 'Nine, nane tat.', 'Tan, nane tat.',
     // + L
     'Ela, lale al.', 'Nine, lale al.', 'Ali, lale al.', 'Lale ile Ela.',
     'Ela, atla.', 'Nalan, anlat.', 'Anne, lale al.', 'Ela, atlet al.',
-    'Ali, tel al.', 'Nil, nane al.', 'Ali, ata nal al.', 'Tatil, anne!',
-    'Nine, anlat.', 'Elli lale al.',
+    'Ali, tel al.', 'Nil, nane al.', 'Annene lale al.', 'Tatil, anne!',
+    'Nine, anlat.', 'Elli lale al.', 'Ninene lale al.', 'Anne, elli tane lale!',
     // + O
     'Alo, anne!', 'Alo, nine!', 'Ali, olta al.', 'Ela, ot al.',
-    'Ali, oto al.',
+    'Ali, oto al.', 'Ali, on lale al.', 'Anne, nota ne?', 'Nine, olta ne?',
+    'Alo, Ali!',
     // + K
     'Ali, kek al.', 'Nine, keten al.', 'Ela, etek al.', 'Nine, kek al.',
     // + U
@@ -446,8 +447,8 @@
     'Ela boyama yapar.', 'Bebeğin dudakları pembe.',
     // ---- Yeni Eklenen 500 Olumlu Cümle (2. Seçki; harf gruplarına göre) ----
     // A N E T İ L O K ile okunabilenler
-    'Ekili alan.', 'O alan ekinlik.', 'İlkeli ol, Ali.',
-    'Nalan ilkeli.', 'Kaliteli keten etek.', 'Ketenli etek al.',
+    'Anne, kek tat!', 'Tilki ne, anne?', 'Kekik ne, nine?',
+    'Ela ile Okan, takla at!', 'Kaliteli keten etek.', 'Ketenli etek al.',
     'Nine, naneli kekik al.',
     'On iki tane lale al.', 'Altan, iki kek al.',
     'Kaan, olta al.', 'Tan, keten etek al.',
