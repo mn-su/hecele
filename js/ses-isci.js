@@ -10,7 +10,7 @@
  *         { tip: 'sonuc', id, ses, parcalar, puan } | { tip: 'hata', id, mesaj }
  */
 import {
-  VARSAYILAN_HIZ, adaylar, adayUret, sonIslem, birSentez, olc, kirilma, uzat, esitle
+  VARSAYILAN_HIZ, adaylar, adayUret, sonIslem, birSentez, olc, kirilma, uzat, esitle, yenidenOrnekle
 } from './ses-islem.js';
 
 let ema = null, arka = null;
@@ -28,6 +28,20 @@ fetch(new URL('ses-tablosu.json', import.meta.url))
   .catch(() => {});
 
 /*
+ * Doğrulanmış ses yalnızca varsayılan hız ve tonda doğru okunuyor: model başka hız ya da tonda
+ * bambaşka bir okuma üretiyor. Bu yüzden ses o ayarda üretilir, hız ve ton sonradan uygulanır:
+ * önce perde korunarak esnetilir (uzat), tonda sonra yeniden örneklenip perde yükseltilir.
+ * Kör dinlemede hece/kelimede (çocuk sesi) ve cümlede (hız) bu yol tercih edildi; çocuk sesindeki
+ * cümlelerde ise modelin kendi tonlu okuması daha iyi bulundu.
+ */
+function donustur(ses, hiz, ton) {
+  const oran = Math.pow(2, (ton || 0) / 12), uzama = oran * VARSAYILAN_HIZ / hiz;
+  let x = Math.abs(uzama - 1) > 0.01 ? uzat(ses, uzama, 1024, 300) : ses;
+  if (ton) x = yenidenOrnekle(oran)(x).slice();
+  return x;
+}
+
+/*
  * tur: 'hece'   → tabloda varsa o aday; yoksa adaylardan perdesi en temiz olan
  *      'kelime' → tabloda varsa o aday; yoksa kırılmasız ilk aday
  *      'cumle'  → tek seferde (uzun girdilerde model zaten doğru)
@@ -37,17 +51,22 @@ async function uret(metin, tur) {
   if (tur === 'cumle' || tur === 'ham') {
     // Cümlelerde de kısa olanlar ünlü kaydırabiliyor: tabloda doğrulanmış tohum varsa o kullanılır
     const tohum = tur === 'cumle' && tablo.c && tablo.c[metin] !== undefined ? tablo.c[metin] : 7;
+    if (tur === 'cumle' && !ayar.ton && Math.abs(ayar.hiz - VARSAYILAN_HIZ) > 0.01) {
+      const r = await birSentez(ema, metin, VARSAYILAN_HIZ, tohum, 0);
+      const k = VARSAYILAN_HIZ / ayar.hiz;   // kelime zamanları da aynı oranda kayar
+      const parcalar = r.parcalar.map((p) => ({ kelimeler: p.kelimeler, baslar: p.baslar.map((b) => b * k), bas: p.bas * k }));
+      return { ses: esitle(donustur(r.ses, ayar.hiz, 0)), parcalar, puan: 1 };
+    }
     const sonuc = await birSentez(ema, metin, ayar.hiz, tohum, ayar.ton);
     if (tur === 'ham') return { ses: sonuc.ses, parcalar: [], puan: olc(sonuc.ses).puan };
     esitle(sonuc.ses);
     return { ses: sonuc.ses, parcalar: sonuc.parcalar, puan: 1 };
   }
   const kayit = (tur === 'hece' ? tablo.h : tablo.k)[metin.toLocaleLowerCase('tr-TR')];
-  if (kayit && !ayar.ton) {
-    // Doğrulanmış aday varsayılan hızda üretilir; farklı hız istenirse perde korunarak esnetilir
-    let { ses } = await adayUret(ema, metin, tur, kayit, VARSAYILAN_HIZ, 0);
-    if (Math.abs(ayar.hiz - VARSAYILAN_HIZ) > 0.01) ses = uzat(ses, VARSAYILAN_HIZ / ayar.hiz, 1024, 300);
-    return { ses: sonIslem(ses, metin, tur), parcalar: [], puan: 1, dogrulanmis: true };
+  if (kayit) {
+    // Doğrulanmış aday varsayılan hız ve tonda üretilir; hız ve ton sonradan uygulanır
+    const { ses } = await adayUret(ema, metin, tur, kayit, VARSAYILAN_HIZ, 0);
+    return { ses: sonIslem(donustur(ses, ayar.hiz, ayar.ton), metin, tur), parcalar: [], puan: 1, dogrulanmis: true };
   }
   const liste = adaylar(metin, tur, arka === 'webgpu');
   let enIyi = null;

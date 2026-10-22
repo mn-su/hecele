@@ -140,6 +140,11 @@ işlemeyi değiştirir:
   Whisper'ın kararı kulakla her zaman örtüşmediği için (özellikle hecelerde) kulağa kötü gelen
   öğeler `araclar/ses-sec.html` ile adayları dinlenerek elle seçilir; bunlar tablonun `elle`
   listesinde tutulur.
+- Doğrulanmış ses yalnızca varsayılan hız ve tonda doğru okunur; model başka hızda ya da tonda
+  bambaşka bir okuma üretir. Bu yüzden hece ve kelimeler her ayarda doğrulanmış haliyle üretilip
+  hız ve “Çocuk sesi” tonu sonradan (perde korunarak) uygulanır; normal tondaki cümlelerde de hız
+  böyle uygulanır. Çocuk sesindeki cümlelerde kör dinlemede modelin kendi tonlu okuması daha iyi
+  bulunduğu için o kullanılır.
   Tabloda olmayan öğeler için uygulama birkaç aday
   üretip perde kalitesine ve kırılma kontrolüne göre seçer.
 - Tek ünlüler kaliteyi bozmuyorsa perdesi korunarak (WSOLA) biraz uzatılır. Ünlüyle biten hece ve
