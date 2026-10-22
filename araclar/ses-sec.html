@@ -45,6 +45,7 @@ hece:ri
 ninni
 Ali, iki kek al."></textarea>
       <div>
+        <label><input type="checkbox" id="genis"> Daha çok aday (önceki turda iyisi çıkmayanlar için yeni tohum ve hızlar)</label><br>
         <button id="uret" disabled>Adayları üret</button>
         <button id="indir" disabled>ses-tablosu.json indir</button>
       </div>
@@ -68,6 +69,17 @@ Ali, iki kek al."></textarea>
     const T = window.Turkce;
     const KAYIT = 'hecele.ses-sec';   // localStorage kökendeki tüm uygulamalarca paylaşılır
     const CUMLE_TOHUM = [7, 3, 11, 5, 1, 9, 2, 4, 6, 8, 10, 12];
+    // "Daha çok aday": standart listede olmayan tohum ve hızlar (uygulama her [yöntem, hız, tohum] adayını üretebilir)
+    const dizi = (y, h, t) => t.map((x) => [y, h, x]);
+    const aralik = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
+    function ekAdaylar(tur, metin) {
+      if (tur === 'cumle') return aralik(13, 24);
+      if (tur === 'hece' && metin.length === 1)
+        return [...dizi('U', 0.65, aralik(6, 11)), ...dizi('U', 0.82, aralik(6, 11)), ...dizi('U', 0.75, aralik(0, 5)), ...dizi('D', 0.8, aralik(4, 7))];
+      if (tur === 'hece')
+        return [...dizi('U', 1, aralik(8, 15)), ...dizi('U', 0.88, aralik(4, 9)), ...dizi('U', 0.8, aralik(0, 5)), ...dizi('D', 0.95, aralik(4, 7)), ...dizi('D', 0.85, aralik(0, 3))];
+      return [...dizi('U', 1, aralik(6, 11)), ...dizi('U', 0.9, aralik(3, 7)), ...dizi('U', 0.85, aralik(0, 3)), ...dizi('D', 1, [1, 2, 4, 6, 8])];
+    }
     const KELIMELER = new Set(window.Veri.KELIMELER.map((k) => T.kucuk(k)));
 
     let tablo = null, ema = null, ctx = null, calan = null;
@@ -120,7 +132,8 @@ Ali, iki kek al."></textarea>
         const [tur, metin] = turBul(satir);
         const anahtar = tur + ':' + metin;
         const simdiki = bolum(tur)[metin];
-        const liste = tur === 'cumle' ? CUMLE_TOHUM.slice() : adaylar(metin, tur, true, true);
+        const liste = $('genis').checked ? ekAdaylar(tur, metin)
+          : tur === 'cumle' ? CUMLE_TOHUM.slice() : adaylar(metin, tur, true, true);
         // Şu anki aday başa
         if (simdiki !== undefined) {
           const j = liste.findIndex((a) => ayni(a, simdiki));
