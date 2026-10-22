@@ -86,6 +86,7 @@ beklemeden gelir.
 | `js/ses-islem.js` | Ses işleme: taşıyıcı ve adaylar, perde/kırılma ölçümü, kırpma, esnetme, ses düzeyi |
 | `js/ses-tablosu.json` | Doğrulanmış ses tablosu (hece/kelime → aday, cümle → tohum) |
 | `araclar/ses-tablosu.html` | Tabloyu Whisper ile üreten geliştirme aracı |
+| `araclar/ses-sec.html` | Kulağa kötü gelen öğeler için adayları dinletip elle seçtiren geliştirme aracı |
 | `sw.js`, `manifest.webmanifest`, `ikonlar/` | PWA: çevrimdışı önbellek, uygulama tanımı, simgeler |
 | `js/uygulama.js` | Ekranlar, okuma akışı, yıldızlar, öğretmen ayarları, kayıt (localStorage) |
 | `ema/` | [ema-lightning-web](https://github.com/ozcancelik/ema-lightning-web) motoru ve modelleri (Apache‑2.0) |
@@ -136,6 +137,9 @@ işlemeyi değiştirir:
   eklenmez. Kelime havuzuna yeni kelime eklendiğinde araçta “Yalnızca eksikler” çalıştırılıp çıkan
   dosya `js/ses-tablosu.json` olarak kaydedilir. Kısa cümlelerde de aynı sorun görüldüğü için
   (“Nine, nane at.” → “Nene nane at”) cümleler de tabloya alındı: doğru okunan tohum saklanır.
+  Whisper'ın kararı kulakla her zaman örtüşmediği için (özellikle hecelerde) kulağa kötü gelen
+  öğeler `araclar/ses-sec.html` ile adayları dinlenerek elle seçilir; bunlar tablonun `elle`
+  listesinde tutulur.
   Tabloda olmayan öğeler için uygulama birkaç aday
   üretip perde kalitesine ve kırılma kontrolüne göre seçer.
 - Tek ünlüler kaliteyi bozmuyorsa perdesi korunarak (WSOLA) biraz uzatılır. Ünlüyle biten hece ve
