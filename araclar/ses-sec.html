@@ -46,6 +46,7 @@ ninni
 Ali, iki kek al."></textarea>
       <div>
         <label><input type="checkbox" id="genis"> Daha çok aday (önceki turda iyisi çıkmayanlar için yeni tohum ve hızlar)</label><br>
+        <label><input type="checkbox" id="sablon"> Hecelerde farklı taşıyıcılar (“Bak, mur, bak.”, “Kal, lı.”; “Daha çok aday” ile birlikte)</label><br>
         <button id="uret" disabled>Adayları üret</button>
         <button id="indir" disabled>ses-tablosu.json indir</button>
       </div>
@@ -63,7 +64,9 @@ Ali, iki kek al."></textarea>
   </script>
   <script type="module">
     import { EMA } from '../ema/tts.js';
-    import { RATE, VARSAYILAN_HIZ, adaylar, adayUret, sonIslem, birSentez, esitle } from '../js/ses-islem.js';
+    // Ses işlemleri her açılışta tazeden yüklenir: önbellekteki eski kopya yeni aday türlerini tanımayabilir
+    const { RATE, VARSAYILAN_HIZ, adaylar, adayUret, sonIslem, birSentez, esitle } =
+      await import('../js/ses-islem.js?t=' + Date.now());
 
     const $ = (id) => document.getElementById(id);
     const T = window.Turkce;
@@ -72,8 +75,19 @@ Ali, iki kek al."></textarea>
     // "Daha çok aday": standart listede olmayan tohum ve hızlar (uygulama her [yöntem, hız, tohum] adayını üretebilir)
     const dizi = (y, h, t) => t.map((x) => [y, h, x]);
     const aralik = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
+    // Şablonlu taşıyıcılar: hece ortada ya da önünde farklı bir kelimeyle (bkz. js/ses-islem.js, yöntem T)
+    const SABLON = {
+      kalin: ['Bak, {}, bak.', 'Bak {} bak.', 'Kal, {}.', 'Al, {}.', 'Hadi, {}.', '{}, bak.'],
+      ince: ['Bil, {}, bil.', 'Bil {} bil.', 'Gel, {}.', 'Sil, {}.', 'Şimdi, {}.', '{}, bil.']
+    };
+    function sablonAdaylar(metin) {
+      const u = metin.match(/[aeıioöuü]/g) || ['a'];
+      const s = /[eiöü]/.test(u[u.length - 1]) ? SABLON.ince : SABLON.kalin;
+      return s.flatMap((sb) => [['T', 1, 0, sb], ['T', 1, 3, sb], ['T', 0.88, 1, sb]]);
+    }
     function ekAdaylar(tur, metin) {
       if (tur === 'cumle') return aralik(13, 24);
+      if (tur === 'hece' && $('sablon').checked) return sablonAdaylar(metin);
       if (tur === 'hece' && metin.length === 1)
         return [...dizi('U', 0.65, aralik(6, 11)), ...dizi('U', 0.82, aralik(6, 11)), ...dizi('U', 0.75, aralik(0, 5)), ...dizi('D', 0.8, aralik(4, 7))];
       if (tur === 'hece')
@@ -162,6 +176,7 @@ Ali, iki kek al."></textarea>
           d.innerHTML = `<button>▶ ${n + 1}</button><button class="sec">Seç</button>`;
           d.children[0].onclick = () => cal(ses);
           d.children[1].onclick = () => { secimler[anahtar] = aday; sakla(); guncelle(); };
+          if (aday[0] === 'T') { const k = document.createElement('small'); k.textContent = aday[3].replace('{}', '·'); d.appendChild(k); }
           kart.querySelector('.adaylar').appendChild(d);
         }
         guncelle();

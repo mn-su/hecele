@@ -270,12 +270,30 @@ function sonKelime(sonuc) {
   return sonuc.ses.slice(Math.min(bas, sonuc.ses.length - 1));
 }
 
+// Şablonlu taşıyıcıdan hedef kelimeyi kes ("Bak, mur, bak." → "mur"): sonraki kelimenin başına kadar
+function kelimeKes(sonuc, metin) {
+  var hedef = metin.toLocaleLowerCase('tr-TR'), duz = [];
+  sonuc.parcalar.forEach(function (p) {
+    p.kelimeler.forEach(function (k, i) { duz.push({ k: k, bas: p.bas + p.baslar[i] }); });
+  });
+  for (var i = 0; i < duz.length; i++) {
+    if (duz[i].k.toLocaleLowerCase('tr-TR').replace(/[^a-zçğıöşüâîû]/g, '') !== hedef) continue;
+    var bas = Math.round(duz[i].bas * RATE);
+    var son = i + 1 < duz.length ? Math.round(duz[i + 1].bas * RATE) : sonuc.ses.length;
+    return sonuc.ses.slice(Math.min(bas, sonuc.ses.length - 1), Math.max(bas + 1, son));
+  }
+  return sonKelime(sonuc);
+}
+
 /* ---------- Adaylar ----------
  * Kısa girdiler (tek hece, kısa kelime) tek başına verilince model ünlüleri kaydırabiliyor
  * ("elma" → "alma", "ten" → "tan") ve perdesi titreyebiliyor. Aynı ses kısa bir cümlenin
  * sonunda daha doğru söyleniyor. Taşıyıcının ünlüsü hedefe uyumlu seçilir: ince ünlüde
  * "Bil, ten.", kalın ünlüde "Bak, lat.".
- * Aday: [yöntem, hız katsayısı, tohum]; yöntem U = uyumlu taşıyıcı, D = tek başına.
+ * Aday: [yöntem, hız katsayısı, tohum]; yöntem U = uyumlu taşıyıcı, D = tek başına,
+ * T = şablonlu taşıyıcı: [T, hız, tohum, şablon], şablondaki {} hedefle değişir ("Bak, {}, bak.").
+ * Ortadaki hece söz sonu etkilerinden kurtulur ("mur" sonunda "r" ötümsüzleşip "ş"ye benzemez);
+ * önündeki kelime ünsüzü etkileyebilir ("Kal, lı." kalın "l").
  */
 const INCE = /[eiöü]/;
 const UNLU_SON = /[aeıioöuü]$/;
@@ -308,10 +326,10 @@ export function adaylar(metin, tur, gpu, genis) {
  * (tablo aracı doğrulamayı bağlamla yapar, bağlam konuşma tanımayı çok iyileştiriyor).
  */
 export async function adayUret(ema, metin, tur, aday, hiz, ton) {
-  const [yontem, hizK, tohum] = aday;
-  const girdi = yontem === 'U' ? tasiyici(metin) : metin;
+  const [yontem, hizK, tohum, sablon] = aday;
+  const girdi = yontem === 'U' ? tasiyici(metin) : yontem === 'T' ? sablon.replace('{}', metin) : metin;
   const r = await birSentez(ema, girdi, hiz * hizK, tohum, ton);
-  let ses = kirp(yontem === 'U' ? sonKelime(r) : r.ses);
+  let ses = kirp(yontem === 'U' ? sonKelime(r) : yontem === 'T' ? kelimeKes(r, metin) : r.ses);
   if (UNLU_SON.test(metin)) ses = tur === 'hece' ? sesliSonKirp(kuyrukKirp(ses)) : sesliSonKirp(ses);
   return { ses, tam: r.ses };
 }
