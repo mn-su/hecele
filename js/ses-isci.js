@@ -62,7 +62,9 @@ async function uret(metin, tur) {
     esitle(sonuc.ses);
     return { ses: sonuc.ses, parcalar: sonuc.parcalar, puan: 1 };
   }
-  const kayit = (tur === 'hece' ? tablo.h : tablo.k)[metin.toLocaleLowerCase('tr-TR')];
+  // Hece ve kelimeler küçük harfle üretilir: tablo küçük harfle doğrulandı, model "Anne" ile "anne"yi farklı okuyor
+  metin = metin.toLocaleLowerCase('tr-TR');
+  const kayit = (tur === 'hece' ? tablo.h : tablo.k)[metin];
   if (kayit) {
     // Doğrulanmış aday varsayılan hız ve tonda üretilir; hız ve ton sonradan uygulanır
     const { ses } = await adayUret(ema, metin, tur, kayit, VARSAYILAN_HIZ, 0);

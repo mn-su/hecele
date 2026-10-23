@@ -192,13 +192,18 @@
     return { havuz: h, ogeler: liste };
   }
 
-  // Doğrulanmış ses tablosunun kapsaması gereken tüm heceler ve kelimeler (küçük harf) ve cümleler
+  // Doğrulanmış ses tablosunun kapsaması gereken tüm heceler ve kelimeler (küçük harf) ve cümleler.
+  // Cümlelerdeki kelimeler de dahil: "Tekrar dinle" cümleyi kelime kelime okur.
   function tumOgeler() {
     var harfler = T.SIRALAR.klasik.harfler;
     var h = heceUret(harfler), heceler = {};
     Object.keys(h).forEach(function (k) { h[k].forEach(function (x) { heceler[x] = true; }); });
     Object.keys(DOGAL).forEach(function (x) { if (!YASAK_HECE[x]) heceler[x] = true; });
-    return { heceler: Object.keys(heceler), kelimeler: tekillestir(V.KELIMELER.map(T.kucuk)), cumleler: tekillestir(V.CUMLELER) };
+    var cumleKelimeleri = [];
+    V.CUMLELER.forEach(function (c) {
+      T.parcala(c).forEach(function (p) { if (p.tur === 'kelime') cumleKelimeleri.push(T.kucuk(p.metin)); });
+    });
+    return { heceler: Object.keys(heceler), kelimeler: tekillestir(V.KELIMELER.map(T.kucuk).concat(cumleKelimeleri)), cumleler: tekillestir(V.CUMLELER) };
   }
 
   var Uretici = { havuz: havuz, tur: tur, heceUret: heceUret, tumOgeler: tumOgeler, karistir: karistir, YASAK_HECE: YASAK_HECE };

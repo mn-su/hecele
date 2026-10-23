@@ -140,6 +140,9 @@ işlemeyi değiştirir:
   Whisper'ın kararı kulakla her zaman örtüşmediği için (özellikle hecelerde) kulağa kötü gelen
   öğeler `araclar/ses-sec.html` ile adayları dinlenerek elle seçilir; bunlar tablonun `elle`
   listesinde tutulur.
+- “Tekrar dinle” ve “Bir daha” cümleyi kelime kelime okur. Bu yüzden cümlelerdeki bütün kelimeler
+  (çekimli biçimler dahil: “annem”, “oturur”) de tabloda doğrulanmıştır ve kelimeler her zaman küçük
+  harfle seslendirilir (model “Anne” ile “anne”yi farklı okuyor).
 - Doğrulanmış ses yalnızca varsayılan hız ve tonda doğru okunur; model başka hızda ya da tonda
   bambaşka bir okuma üretir. Bu yüzden hece ve kelimeler her ayarda doğrulanmış haliyle üretilip
   hız ve “Çocuk sesi” tonu sonradan (perde korunarak) uygulanır; normal tondaki cümlelerde de hız
